@@ -1,7 +1,50 @@
 /* styles.css */
 
+#game-root {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1; /* Make sure this is above the Three.js canvas */
+  }
+  
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1; /* The Three.js canvas will be behind the game */
+  }
+  
 
 
+  .shell {
+    width: 100px;
+    height: 100px;
+    background-color: #ddd;
+    margin: 10px;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .ball {
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 20px;
+  }
+  .message {
+    font-size: 20px;
+    margin-top: 20px;
+  }
+  .confirm-message {
+    font-size: 18px;
+    margin-top: 10px;
+  }
 body {
     background-image: url('https://www.fotobehang.com/media/catalog/product/cache/871f459736130e239a3f5e6472128962/w/0/w09394_-_small.jpg');
     display: flex;
@@ -83,3 +126,6 @@ body {
     
 
   
+
+
+ 

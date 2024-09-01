@@ -10,6 +10,7 @@ let gameOver = false;
 let points = 0;
 let consecutiveWins = 0; // Track consecutive wins
 let shuffleInterval = 1000; // Initial shuffle interval in milliseconds
+let isShuffling = false; // Flag to indicate if shells are currently being shuffled
 
 // Start button click event to start the game
 startButton.addEventListener('click', startGame);
@@ -31,6 +32,7 @@ function initializeGame() {
   shells = [];
   ballIndex = Math.floor(Math.random() * 3); // Reset ball position
   gameOver = false;
+  isShuffling = false; // Reset shuffling flag
 
   // Create shells and add to the game root
   gameRoot.innerHTML = ''; // Clear previous shell containers
@@ -56,7 +58,7 @@ function initializeGame() {
 
 // Handle shell click
 function handleShellClick(index) {
-  if (gameOver) return;
+  if (gameOver || isShuffling) return; // Prevent clicking if the game is over or if shuffling is in progress
   const correctGuess = index === ballIndex;
 
   // Display a message to the user
@@ -112,9 +114,26 @@ function showConfirmMessage(isWin) {
   });
 
   document.getElementById('quit').addEventListener('click', () => {
-    confirmElement.remove();
-    gameOver = false;
+    if (confirm('Are you sure you want to quit? All progress will be lost.')) {
+      confirmElement.remove();
+      resetGameToSplashScreen();
+    }
   });
+}
+
+// Reset the game to the splash screen and clear all details
+function resetGameToSplashScreen() {
+  gameOver = false;
+  points = 0;
+  consecutiveWins = 0;
+  shuffleInterval = 1000;
+  updatePointsDisplay(); // Reset points display
+
+  userName = ''; // Clear user name
+  usernameInput.value = ''; // Clear input field
+
+  gameRoot.style.display = 'none'; // Hide game area
+  splashScreen.style.display = 'flex'; // Show splash screen
 }
 
 // Update points display
@@ -126,6 +145,7 @@ function updatePointsDisplay() {
 function shuffleShells() {
   if (gameOver) return;
 
+  isShuffling = true; // Set shuffling flag to true
   const shuffleSteps = 5; // Number of shuffle steps
   let currentStep = 0;
 
@@ -136,6 +156,7 @@ function shuffleShells() {
     currentStep++;
     if (currentStep >= shuffleSteps) {
       clearInterval(interval);
+      isShuffling = false; // Reset shuffling flag after shuffling is complete
 
       // Log the final position of the ball
       console.log('Final position of the ball is under shell index:', ballIndex);

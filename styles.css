@@ -1,5 +1,18 @@
 /* styles.css */
 
+.background-animate {
+    animation: backgroundMove 10s infinite linear;
+  }
+  
+  @keyframes backgroundMove {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
 #game-root {
     position: absolute;
     top: 50%;

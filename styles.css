@@ -242,4 +242,7 @@ h1 {
 }
 
 
-  
+#mute-button {
+    display: none; /* Hide by default */
+    /* Additional styling for your mute button */
+  }

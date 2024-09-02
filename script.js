@@ -4,6 +4,7 @@ const splashScreen = document.getElementById('splash-screen');
 const startButton = document.getElementById('start-button');
 const usernameInput = document.getElementById('username');
 const pointsDisplay = document.getElementById('points-display'); // Points display element
+const muteButton = document.getElementById('mute-button'); // Mute button element
 let shells = [];
 let ballIndex = Math.floor(Math.random() * 3); // Initial ball position
 let gameOver = false;
@@ -19,6 +20,7 @@ let gridFloor, fogColor, backgroundAnimationStarted = false;
 
 // Audio variables
 let backgroundMusic; // Variable to store the background music
+let isMuted = false; // Track mute state
 
 // Initialize Three.js
 function initThreeJS() {
@@ -88,7 +90,6 @@ function initMusic() {
   backgroundMusic = new Audio('sounds/stranger-things.mp3'); // Path to your music file
   backgroundMusic.loop = true; // Set music to loop
   backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
-  backgroundMusic.play(); // Start playing music immediately
 }
 
 // Pause background music
@@ -105,10 +106,27 @@ function resumeMusic() {
   }
 }
 
+// Toggle mute functionality
+function toggleMute() {
+  if (isMuted) {
+    // Unmute
+    backgroundMusic.volume = 0.5; // Restore volume to previous level
+    muteButton.querySelector('.front').textContent = 'Mute';
+  } else {
+    // Mute
+    backgroundMusic.volume = 0; // Set volume to 0 (mute)
+    muteButton.querySelector('.front').textContent = 'Unmute';
+  }
+  isMuted = !isMuted; // Toggle mute state
+}
+
 // Start the game
 startButton.addEventListener('click', () => {
   startGame();
 });
+
+// Initialize mute button
+muteButton.addEventListener('click', toggleMute);
 
 function startGame() {
   userName = usernameInput.value.trim(); // Get the user's name
@@ -119,7 +137,9 @@ function startGame() {
 
   splashScreen.style.display = 'none'; // Hide splash screen
   gameRoot.style.display = 'flex'; // Show game area
+  muteButton.style.display = 'block'; // Show mute button
   initializeGame();
+  resumeMusic(); // Start playing music only after the game starts
 }
 
 // Initialize game elements and state
@@ -175,7 +195,6 @@ function handleShellClick(index) {
     updatePointsDisplay();
     consecutiveWins = 0; // Reset consecutive wins
     shuffleInterval = 1000; // Reset shuffle interval
-    stopBackgroundAnimation(); // Stop background movement on wrong guess
     pauseMusic(); // Pause music on incorrect guess
     backgroundAnimationStarted = false; // Reset background animation flag
 
@@ -247,7 +266,7 @@ function resetGameToSplashScreen() {
 
   gameRoot.style.display = 'none'; // Hide game area
   splashScreen.style.display = 'flex'; // Show splash screen
-  stopBackgroundAnimation(); // Stop background movement on quit
+  muteButton.style.display = 'none'; // Hide mute button
   pauseMusic(); // Pause music on quit
 }
 
@@ -332,20 +351,9 @@ function swapShellsAndAnimate(shell1, shell2) {
   }, 500); // Match the animation duration
 }
 
-// Start the background animation
-function startBackgroundAnimation() {
-  // Trigger the background animation
-  document.body.classList.add('background-animate');
-}
-
-// Stop the background animation
-function stopBackgroundAnimation() {
-  // Stop the background animation
-  document.body.classList.remove('background-animate');
-}
-
 // Initialize Three.js and Music when the window loads
 window.onload = () => {
   initThreeJS();
   initMusic(); // Initialize music
+  muteButton.style.display = 'none'; // Hide the mute button initially
 };

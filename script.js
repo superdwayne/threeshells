@@ -17,6 +17,9 @@ let canClickShells = false; // Flag to control shell clickability
 let scene, camera, renderer;
 let gridFloor, fogColor, backgroundAnimationStarted = false;
 
+// Audio variables
+let backgroundMusic; // Variable to store the background music
+
 // Initialize Three.js
 function initThreeJS() {
   scene = new THREE.Scene();
@@ -80,11 +83,32 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Initialize Three.js when the window loads
-window.onload = initThreeJS;
+// Initialize background music
+function initMusic() {
+  backgroundMusic = new Audio('sounds/stranger-things.mp3'); // Path to your music file
+  backgroundMusic.loop = true; // Set music to loop
+  backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
+  backgroundMusic.play(); // Start playing music immediately
+}
+
+// Pause background music
+function pauseMusic() {
+  if (backgroundMusic) {
+    backgroundMusic.pause();
+  }
+}
+
+// Resume background music
+function resumeMusic() {
+  if (backgroundMusic && backgroundMusic.paused) {
+    backgroundMusic.play();
+  }
+}
 
 // Start the game
-startButton.addEventListener('click', startGame);
+startButton.addEventListener('click', () => {
+  startGame();
+});
 
 function startGame() {
   userName = usernameInput.value.trim(); // Get the user's name
@@ -152,6 +176,7 @@ function handleShellClick(index) {
     consecutiveWins = 0; // Reset consecutive wins
     shuffleInterval = 1000; // Reset shuffle interval
     stopBackgroundAnimation(); // Stop background movement on wrong guess
+    pauseMusic(); // Pause music on incorrect guess
     backgroundAnimationStarted = false; // Reset background animation flag
 
     // Show options to guess again or quit
@@ -189,6 +214,7 @@ function showConfirmMessage(isWin) {
       confirmElement.remove();
       initializeGame(); // Restart the game without resetting points
       canClickShells = true; // Enable shell clicks after initializing game
+      resumeMusic(); // Resume music after winning
     }, 2000); // Show the win message for 2 seconds before restarting
   } else {
     // Handle play again and quit button clicks for losing state
@@ -196,6 +222,7 @@ function showConfirmMessage(isWin) {
       confirmElement.remove();
       initializeGame(); // Restart the game without resetting points
       canClickShells = true; // Enable shell clicks after initializing game
+      resumeMusic(); // Resume music if the player chooses to play again
     });
 
     document.getElementById('quit').addEventListener('click', () => {
@@ -221,6 +248,7 @@ function resetGameToSplashScreen() {
   gameRoot.style.display = 'none'; // Hide game area
   splashScreen.style.display = 'flex'; // Show splash screen
   stopBackgroundAnimation(); // Stop background movement on quit
+  pauseMusic(); // Pause music on quit
 }
 
 // Update points display
@@ -315,3 +343,9 @@ function stopBackgroundAnimation() {
   // Stop the background animation
   document.body.classList.remove('background-animate');
 }
+
+// Initialize Three.js and Music when the window loads
+window.onload = () => {
+  initThreeJS();
+  initMusic(); // Initialize music
+};

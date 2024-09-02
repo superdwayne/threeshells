@@ -41,12 +41,14 @@ function addLights() {
     scene.add(pointLight);
 }
 
-// Animation loop
 function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+  camera.position.x -= 0.003;
+  camera.position.z -= 0.003;
+  camera.position.y -= 0.013;
+  camera.lookAt(new THREE.Vector3(0, 0, -10));
+  renderer.render(scene, camera);
 }
-
 // Handle window resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;

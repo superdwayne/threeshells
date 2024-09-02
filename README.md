@@ -56,15 +56,42 @@ Welcome to the "Game of Shells"! This game is a fun and interactive shell game w
   - `gameLogic.js`: JavaScript file for the game logic and interactions.
   - `ui.js`: JavaScript file for handling user interface interactions.
 
-## Troubleshooting
+## Future Improvements
 
-- **No Grid Displayed:**
-  - Ensure that Three.js is correctly included in your HTML file.
-  - Check for any JavaScript errors in the browser console that might be preventing the grid from rendering.
+1. **Leaderboard:**
+   - Implement a leaderboard to track and display the highest scores achieved by players.
+   - Integrate with a backend or local storage to save and retrieve high scores.
 
-- **Audio Issues:**
-  - Verify that the audio file path is correct and the file is accessible.
-  - Ensure that the browser allows autoplay for background music.
+2. **Ability to Mute Music:**
+   - Provide a more intuitive way to toggle the background music on and off.
+   - Include visual feedback to show whether the music is muted or playing.
+
+3. **Better Graphics:**
+   - Enhance the visual quality of the game with improved graphics and textures.
+   - Add animations and effects to make the gameplay more engaging.
+
+4. **Difficulty Levels:**
+   - Introduce different difficulty levels with varying shell shuffle speeds and game mechanics.
+   - Allow players to select their preferred difficulty before starting the game.
+
+5. **Game Statistics:**
+   - Display detailed game statistics such as average points per round, number of games played, etc.
+   - Provide insights into player performance and progress.
+
+6. **Sound Effects:**
+   - Add sound effects for actions like shell clicks, correct guesses, and game over scenarios.
+   - Enhance the audio experience to make the game more immersive.
+
+7. **Mobile Optimization:**
+   - Improve the game’s performance and usability on mobile devices.
+   - Optimize controls and UI elements for touch interactions.
+
+8. **Customizable Themes:**
+   - Allow players to choose or customize the game's visual theme.
+   - Provide options for different color schemes and backgrounds.
+
+## Contact
+
+For any issues or further questions, please reach out to the game developer or check the [project repository](#) for updates and support.
 
 Enjoy playing the "Game of Shells"!
-

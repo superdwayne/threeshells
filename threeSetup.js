@@ -45,7 +45,6 @@ function animate() {
   requestAnimationFrame(animate);
   camera.position.x -= 0.003;
   camera.position.z -= 0.003;
-  camera.position.y -= 0.013;
   camera.lookAt(new THREE.Vector3(0, 0, -10));
   renderer.render(scene, camera);
 }

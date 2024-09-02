@@ -11,6 +11,7 @@ let points = 0;
 let consecutiveWins = 0; // Track consecutive wins
 let shuffleInterval = 1000; // Initial shuffle interval in milliseconds
 let isShuffling = false; // Flag to indicate if shells are currently being shuffled
+let canClickShells = false; // Flag to control shell clickability
 
 // Three.js variables
 let scene, camera, renderer;
@@ -65,8 +66,8 @@ function animate() {
   requestAnimationFrame(animate);
   
   // Move the camera forward slowly to create a sense of movement
-  camera.position.z -= 0.006; // Move forward
-  
+  camera.position.x -= 0.003; // Move forward
+  camera.position.z -= 0.003; // Move forward
   camera.lookAt(new THREE.Vector3(0, 0, -10)); // Keep the camera looking ahead
   
   renderer.render(scene, camera);
@@ -103,6 +104,7 @@ function initializeGame() {
   ballIndex = Math.floor(Math.random() * 3); // Reset ball position
   gameOver = false;
   isShuffling = false; // Reset shuffling flag
+  canClickShells = false; // Disable shell clicks at the start
 
   // Create shells and add to the game root
   gameRoot.innerHTML = ''; // Clear previous shell containers
@@ -128,11 +130,8 @@ function initializeGame() {
 
 // Handle shell click
 function handleShellClick(index) {
-  if (gameOver || isShuffling) return; // Prevent clicking if the game is over or if shuffling is in progress
+  if (gameOver || isShuffling || !canClickShells) return; // Prevent clicking if the game is over, shuffling is in progress, or shells are not clickable
   const correctGuess = index === ballIndex;
-
-  // Display a message to the user
-  showMessage(correctGuess ? 'You Win!' : `${userName}, You Lose!`, correctGuess);
 
   // Update points based on guess result
   if (correctGuess) {
@@ -140,16 +139,13 @@ function handleShellClick(index) {
     updatePointsDisplay();
     consecutiveWins++;
 
-    // Start background animation after two consecutive wins
-    if (consecutiveWins === 2 && !backgroundAnimationStarted) {
-      startBackgroundAnimation(); // Function to start background movement
-      backgroundAnimationStarted = true;
-    }
-
     // Increase speed after three consecutive wins
-    if (consecutiveWins > 3) {
+    if (consecutiveWins > 2) {
       shuffleInterval = Math.max(shuffleInterval - 200, 500); // Increase speed, but keep it above 500ms
     }
+
+    // Show confirmation message and continue playing
+    showConfirmMessage(true);
   } else {
     points = 0;
     updatePointsDisplay();
@@ -157,21 +153,12 @@ function handleShellClick(index) {
     shuffleInterval = 1000; // Reset shuffle interval
     stopBackgroundAnimation(); // Stop background movement on wrong guess
     backgroundAnimationStarted = false; // Reset background animation flag
+
+    // Show options to guess again or quit
+    showConfirmMessage(false);
   }
 
   gameOver = true;
-
-  // Show options to guess again or quit
-  showConfirmMessage(correctGuess);
-}
-
-// Display a message to the user
-function showMessage(message, isWin) {
-  const messageElement = document.createElement('div');
-  messageElement.classList.add('message');
-  messageElement.textContent = message;
-  gameRoot.appendChild(messageElement);
-  messageElement.style.color = isWin ? 'green' : 'red';
 }
 
 // Show the confirmation message with options to play again or quit
@@ -179,24 +166,45 @@ function showConfirmMessage(isWin) {
   const confirmElement = document.createElement('div');
   confirmElement.classList.add('confirm-message');
   confirmElement.innerHTML = `
-    ${isWin ? `You guessed correctly! Your points: ${points}.` : 'Do you want to guess again or quit?'}
+    ${isWin ? `${userName}, you guessed correctly!` : `Oops, try again ${userName}`}
     <br><br>
-    <button id="play-again">Play Again</button>
-    <button id="quit">Quit</button>
+    ${isWin ? '' : `
+      <button class="pushable" id="play-again">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">Try again</span>
+      </button>
+      <button class="pushable" id="quit">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">Quit</span>
+      </button>
+    `}
   `;
   gameRoot.appendChild(confirmElement);
 
-  document.getElementById('play-again').addEventListener('click', () => {
-    confirmElement.remove();
-    initializeGame(); // Restart the game without resetting points
-  });
-
-  document.getElementById('quit').addEventListener('click', () => {
-    if (confirm('Are you sure you want to quit? All progress will be lost.')) {
+  if (isWin) {
+    // Automatically restart the game after showing the win message
+    setTimeout(() => {
       confirmElement.remove();
-      resetGameToSplashScreen();
-    }
-  });
+      initializeGame(); // Restart the game without resetting points
+      canClickShells = true; // Enable shell clicks after initializing game
+    }, 2000); // Show the win message for 2 seconds before restarting
+  } else {
+    // Handle play again and quit button clicks for losing state
+    document.getElementById('play-again').addEventListener('click', () => {
+      confirmElement.remove();
+      initializeGame(); // Restart the game without resetting points
+      canClickShells = true; // Enable shell clicks after initializing game
+    });
+
+    document.getElementById('quit').addEventListener('click', () => {
+      if (confirm('Are you sure you want to quit? All progress will be lost.')) {
+        confirmElement.remove();
+        resetGameToSplashScreen();
+      }
+    });
+  }
 }
 
 // Reset the game to the splash screen and clear all details
@@ -225,6 +233,7 @@ function shuffleShells() {
   if (gameOver) return;
 
   isShuffling = true; // Set shuffling flag to true
+  canClickShells = false; // Disable shell clicks while shuffling
   const shuffleSteps = 5; // Number of shuffle steps
   let currentStep = 0;
 
@@ -236,6 +245,7 @@ function shuffleShells() {
     if (currentStep >= shuffleSteps) {
       clearInterval(interval);
       isShuffling = false; // Reset shuffling flag
+      canClickShells = true; // Re-enable shell clicks after shuffling
 
       // Log the final position of the ball
       console.log('Final position of the ball is under shell index:', ballIndex);

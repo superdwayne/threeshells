@@ -6,12 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game of Shells</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="splash-screen">
     <h1>Welcome to the Game of Shells!</h1>
     <input type="text" id="username" placeholder="Enter your name" />
-    <button id="start-button">Start Game</button>
+
+    <button class="pushable"  id="start-button">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">
+         Start Game
+        </span>
+      </button>
   </div>
   <div id="points-display">Points: 0</div>
 

@@ -1,4 +1,4 @@
-// Store the player's name
+// Game Variables
 let userName = '';
 const gameRoot = document.getElementById('game-root');
 const splashScreen = document.getElementById('splash-screen');
@@ -15,114 +15,11 @@ let shuffleInterval = 1000;
 let isShuffling = false;
 let canClickShells = false;
 
-// Three.js variables
-let scene, camera, renderer, gridFloor, fogColor;
-let backgroundAnimationStarted = false;
+// Event Listeners
+startButton.addEventListener('click', startGame);
 
-// Audio variables
-let backgroundMusic;
-let isMuted = false;
-const musicSpeedFactor = 1.2; // Speed-up factor for the music
-
-// Initialize Three.js
-function initThreeJS() {
-  scene = new THREE.Scene();
-  fogColor = new THREE.Color(0x000000);
-  scene.background = fogColor;
-  scene.fog = new THREE.Fog(fogColor, 0.1, 50);
-
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 5, 10);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  createGridFloor();
-  addLights();
-  animate();
-}
-
-// Create grid floor
-function createGridFloor() {
-  const gridSize = 100;
-  const gridDivisions = 100;
-  const gridColor = new THREE.Color(0xffffff);
-
-  gridFloor = new THREE.GridHelper(gridSize, gridDivisions, gridColor, gridColor);
-  gridFloor.rotation.z = Math.PI / 1;
-  scene.add(gridFloor);
-}
-
-// Add lights to the scene
-function addLights() {
-  const ambientLight = new THREE.AmbientLight(0x404040);
-  scene.add(ambientLight);
-
-  const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-  pointLight.position.set(0, 50, 0);
-  scene.add(pointLight);
-}
-
-// Animation loop
-function animate() {
-  requestAnimationFrame(animate);
-  camera.position.x -= 0.003;
-  camera.position.z -= 0.003;
-  camera.lookAt(new THREE.Vector3(0, 0, -10));
-  renderer.render(scene, camera);
-}
-
-// Handle window resize
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Initialize background music
-function initMusic() {
-  backgroundMusic = new Audio('sounds/stranger-things.mp3');
-  backgroundMusic.loop = true;
-  backgroundMusic.volume = 0.5;
-}
-
-// Pause background music
-function pauseMusic() {
-  if (backgroundMusic) {
-    backgroundMusic.pause();
-  }
-}
-
-// Resume background music
-function resumeMusic() {
-  if (backgroundMusic && backgroundMusic.paused) {
-    backgroundMusic.play();
-  }
-}
-
-// Increase music speed
-function speedUpMusic() {
-  if (backgroundMusic) {
-    backgroundMusic.playbackRate *= musicSpeedFactor; // Increase playback rate
-  }
-}
-
-// Toggle mute functionality
-function toggleMute() {
-  isMuted = !isMuted;
-  backgroundMusic.volume = isMuted ? 0 : 0.5;
-  muteButton.querySelector('.front').textContent = isMuted ? 'Unmute' : 'Mute';
-}
 
 // Start the game
-startButton.addEventListener('click', () => {
-  startGame();
-});
-
-// Initialize mute button
-muteButton.addEventListener('click', toggleMute);
-
 function startGame() {
   userName = usernameInput.value.trim();
   if (userName === '') {
@@ -214,69 +111,6 @@ function updatePointsDisplay() {
   pointsDisplay.textContent = `Points: ${points}`;
 }
 
-// Show the confirmation message with options to play again or quit
-function showConfirmMessage(isWin) {
-  const confirmElement = document.createElement('div');
-  confirmElement.classList.add('confirm-message');
-  confirmElement.innerHTML = `
-    ${isWin ? `${userName}, you guessed correctly!` : `Oops, try again ${userName}`}
-    <br><br>
-    ${isWin ? '' : `
-      <button class="pushable" id="play-again">
-        <span class="shadow"></span>
-        <span class="edge"></span>
-        <span class="front">Try again</span>
-      </button>
-      <button class="pushable" id="quit">
-        <span class="shadow"></span>
-        <span class="edge"></span>
-        <span class="front">Quit</span>
-      </button>
-    `}
-  `;
-  gameRoot.appendChild(confirmElement);
-
-  if (isWin) {
-    setTimeout(() => {
-      confirmElement.remove();
-      initializeGame();
-      canClickShells = true;
-      resumeMusic();
-    }, 2000);
-  } else {
-    document.getElementById('play-again').addEventListener('click', () => {
-      confirmElement.remove();
-      initializeGame();
-      canClickShells = true;
-      resumeMusic();
-    });
-
-    document.getElementById('quit').addEventListener('click', () => {
-      if (confirm('Are you sure you want to quit? All progress will be lost.')) {
-        confirmElement.remove();
-        resetGameToSplashScreen();
-      }
-    });
-  }
-}
-
-// Reset the game to the splash screen and clear all details
-function resetGameToSplashScreen() {
-  gameOver = false;
-  points = 0;
-  consecutiveWins = 0;
-  shuffleInterval = 1000;
-  updatePointsDisplay();
-
-  userName = '';
-  usernameInput.value = '';
-
-  gameRoot.style.display = 'none';
-  splashScreen.style.display = 'flex';
-  muteButton.style.display = 'none';
-  pauseMusic();
-}
-
 // Shuffle shells with animation
 function shuffleShells() {
   if (gameOver) return;
@@ -344,9 +178,70 @@ function swapShellsAndAnimate(shell1, shell2) {
   }, 500);
 }
 
-// Initialize Three.js and Music when the window loads
+// Show the confirmation message with options to play again or quit
+function showConfirmMessage(isWin) {
+  const confirmElement = document.createElement('div');
+  confirmElement.classList.add('confirm-message');
+  confirmElement.innerHTML = `
+    ${isWin ? `${userName}, you guessed correctly!` : `Oops, try again ${userName}`}
+    <br><br>
+    ${isWin ? '' : `
+      <button class="pushable" id="play-again">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">Try again</span>
+      </button>
+      <button class="pushable" id="quit">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">Quit</span>
+      </button>
+    `}
+  `;
+  gameRoot.appendChild(confirmElement);
+
+  if (isWin) {
+    setTimeout(() => {
+      confirmElement.remove();
+      initializeGame();
+      canClickShells = true;
+      resumeMusic();
+    }, 2000);
+  } else {
+    document.getElementById('play-again').addEventListener('click', () => {
+      confirmElement.remove();
+      initializeGame();
+      canClickShells = true;
+      resumeMusic();
+    });
+
+    document.getElementById('quit').addEventListener('click', () => {
+      if (confirm('Are you sure you want to quit? All progress will be lost.')) {
+        confirmElement.remove();
+        resetGameToSplashScreen();
+      }
+    });
+  }
+}
+
+// Reset the game to the splash screen and clear all details
+function resetGameToSplashScreen() {
+  gameOver = false;
+  points = 0;
+  consecutiveWins = 0;
+  shuffleInterval = 1000;
+  updatePointsDisplay();
+
+  userName = '';
+  usernameInput.value = '';
+
+  gameRoot.style.display = 'none';
+  splashScreen.style.display = 'flex';
+  muteButton.style.display = 'none';
+  pauseMusic();
+}
+
+// Initialize game on window load
 window.onload = () => {
-  initThreeJS();
-  initMusic();
   muteButton.style.display = 'none';
 };

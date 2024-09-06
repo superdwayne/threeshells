@@ -87,7 +87,6 @@ body {
   
   #game-root {
     position: absolute;
-    width: 600px;
     height: 200px;
     display: flex;
     justify-content: space-between;

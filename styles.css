@@ -1,266 +1,263 @@
-/* styles.css */
 
 .background-animate {
-    animation: backgroundMove 10s infinite linear;
+  animation: backgroundMove 10s infinite linear;
+}
+
+@keyframes backgroundMove {
+  0% {
+    transform: translateX(0);
   }
-  
-  @keyframes backgroundMove {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
+  100% {
+    transform: translateX(-100%);
   }
+}
 
 #game-root {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1; /* Make sure this is above the Three.js canvas */
-  }
-  
-  canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -1; /* The Three.js canvas will be behind the game */
-  }
-  
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1; /* Make sure this is above the Three.js canvas */
+}
 
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1; /* The Three.js canvas will be behind the game */
+}
 
 /* Shell styling */
 .shell {
-    width: 100px; /* Example width */
-    height: 100px; /* Example height */
-    background-color: #ccc; /* Example shell color */
-    position: relative; /* Set to relative to position arrow absolutely inside */
-    margin: 20px; /* Spacing between shells */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-  
-  .ball {
-    width: 50px;
-    height: 50px;
-    background-color: red;
-    border-radius: 50%;
-    position: absolute;
-    top: 20px;
-  }
-  .message {
-    font-size: 20px;
-    margin-top: 20px;
-  }
-  .confirm-message {
-    font-family: "Press Start 2P", cursive;
-    font-size: 16px;
-    color: #fff;
-    margin-top: 10px;
-    position: absolute;
-    top: -150px;
-    width: 100%;
-    text-align: center;
-  }
+  width: 100px; /* Example width */
+  height: 100px; /* Example height */
+  background-color: #ccc; /* Example shell color */
+  position: relative; /* Set to relative to position arrow absolutely inside */
+  margin: 20px; /* Spacing between shells */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ball {
+  width: 50px;
+  height: 50px;
+  background-color: red;
+  border-radius: 50%;
+  position: absolute;
+  top: 20px;
+}
+
+.message {
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+.confirm-message {
+  font-family: "Press Start 2P", cursive;
+  font-size: 16px;
+  color: #fff;
+  margin-top: 10px;
+  position: absolute;
+  top: -150px;
+  width: 100%;
+  text-align: center;
+}
+
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #2b2b2b;
-    margin: 0;
-    background-size: cover;
-    font-family: Arial, sans-serif;
-  }
-  
-  #splash-screen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: white;
-  }
-  
-  #game-root {
-    position: absolute;
-    height: 200px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .shell {
-    width: 100px;
-    height: 100px;
-    background-color: #d4af37; /* Gold color for shells */
-    border-radius: 50%;
-    position: relative;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.5s ease;
-  }
-  
-  .ball {
-    width: 40px;
-    height: 40px;
-    background-color: red;
-    border-radius: 50%;
-    position: absolute;
-    top: 30px;
-    left: 30px;
-    transition: transform 0.5s ease, opacity 0.2s ease;
-    opacity: 1; /* Ball is visible during shuffle */
-  }
-  
-  .message {
-    position: absolute;
-    top: -50px;
-    width: 100%;
-    text-align: center;
-    color: white;
-    font-size: 18px;
-  }
-  
-  button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  #points-display {
-    font-family: "Press Start 2P", cursive;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 16px;
-    color: #fff;
-    font-weight: bold;
-  }
-  .leaderboard {
-    font-family: "Press Start 2P", cursive;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 16px;
-    color: #fff;
-    font-weight: bold;
-  }
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #2b2b2b;
+  margin: 0;
+  background-size: cover;
+  font-family: Arial, sans-serif;
+}
+
+#splash-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+}
+
+#game-root {
+  position: absolute;
+  height: 200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shell {
+  width: 100px;
+  height: 100px;
+  background-color: #d4af37; /* Gold color for shells */
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.5s ease;
+}
+
+.ball {
+  width: 40px;
+  height: 40px;
+  background-color: red;
+  border-radius: 50%;
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  transition: transform 0.5s ease, opacity 0.2s ease;
+  opacity: 1; /* Ball is visible during shuffle */
+}
+
+.message {
+  position: absolute;
+  top: -50px;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+}
+
+button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#points-display {
+  font-family: "Press Start 2P", cursive;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 16px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.leaderboard {
+  font-family: "Press Start 2P", cursive;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 16px;
+  color: #fff;
+  font-weight: bold;
+}
+
 h1 {
-        font-family: "Press Start 2P", cursive;
-        font-weight: 400;
-        font-style: normal;    
-        font-size: 16px;  
+  font-family: "Press Start 2P", cursive;
+  font-weight: 400;
+  font-style: normal;    
+  font-size: 16px;  
 }
 
 .pushable {
-    position: relative;
-    border: none;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    outline-offset: 4px;
-    transition: filter 250ms;
-  }
-  .shadow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: hsl(0deg 0% 0% / 0.25);
-    will-change: transform;
-    transform: translateY(2px);
-    transition:
-      transform
-      600ms
-      cubic-bezier(.3, .7, .4, 1);
-  }
-  .edge {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: linear-gradient(
-      to left,
-      hsl(340deg 100% 16%) 0%,
-      hsl(340deg 100% 32%) 8%,
-      hsl(340deg 100% 32%) 92%,
-      hsl(340deg 100% 16%) 100%
-    );
-  }
-  .front {
-    display: block;
-    position: relative;
-    padding: 12px 42px;
-    border-radius: 12px;
-    font-size: 1.25rem;
-    color: white;
-    background: hsl(345deg 100% 47%);
-    will-change: transform;
-    transform: translateY(-4px);
-    transition:
-      transform
-      600ms
-      cubic-bezier(.3, .7, .4, 1);
-  }
-  .pushable:hover {
-    filter: brightness(110%);
-  }
-  .pushable:hover .front {
-    transform: translateY(-6px);
-    transition:
-      transform
-      250ms
-      cubic-bezier(.3, .7, .4, 1.5);
-  }
-  .pushable:active .front {
-    transform: translateY(-2px);
-    transition: transform 34ms;
-  }
-  .pushable:hover .shadow {
-    transform: translateY(4px);
-    transition:
-      transform
-      250ms
-      cubic-bezier(.3, .7, .4, 1.5);
-  }
-  .pushable:active .shadow {
-    transform: translateY(1px);
-    transition: transform 34ms;
-  }
-  .pushable:focus:not(:focus-visible) {
-    outline: none;
-  }
-
-#username {
-    width: 80%;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: center;
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
 }
 
+.shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.25);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(
+    to left,
+    hsl(340deg 100% 16%) 0%,
+    hsl(340deg 100% 32%) 8%,
+    hsl(340deg 100% 32%) 92%,
+    hsl(340deg 100% 16%) 100%
+  );
+}
+
+.front {
+  display: block;
+  position: relative;
+  padding: 12px 42px;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  color: white;
+  background: hsl(345deg 100% 47%);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.pushable:hover {
+  filter: brightness(110%);
+}
+
+.pushable:hover .front {
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.pushable:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.pushable:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.pushable:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+.pushable:focus:not(:focus-visible) {
+  outline: none;
+}
+
+#username {
+  width: 80%;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
 
 #mute-button {
-    display: none; /* Hide by default */
-    /* Additional styling for your mute button */
-  }
+  display: none; /* Hide by default */
+  /* Additional styling for your mute button */
+}
 
-  .leaderboard-scores
-  {
-    margin-top: 60px;
-  }
+.leaderboard-scores {
+  margin-top: 60px;
+}
 
-  /* Modal Styles */
+/* Modal Styles */
 .modal {
   display: none; /* Hidden by default */
   position: fixed;

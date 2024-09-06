@@ -82,14 +82,18 @@ function hideBall() {
 }
 
 function handleShellClick(index) {
-  if (gameOver || isShuffling || !canClickShells) return;
-  
-  const correctGuess = index === ballIndex;
-  updateGameState(correctGuess);
-  showConfirmMessage(correctGuess);
-  updatePointsDisplay();
-  gameOver = true;
-}
+    if (gameOver || isShuffling || !canClickShells) return;
+    
+    const correctGuess = index === ballIndex;
+    updateGameState(correctGuess);
+    if (pickBallMessageElement) {
+      pickBallMessageElement.remove(); // Remove the "Pick a ball" message
+      pickBallMessageElement = null; // Clear the reference
+    }
+    showConfirmMessage(correctGuess);
+    updatePointsDisplay();
+    gameOver = true;
+  }
 
 // Update game state based on correct or incorrect guess
 function updateGameState(correctGuess) {
@@ -130,9 +134,18 @@ function shuffleShells() {
       clearInterval(interval);
       isShuffling = false;
       canClickShells = true;
+      showPickBallMessage(); // Show the message to pick a ball
     }
   }, shuffleInterval);
 }
+
+function showPickBallMessage() {
+    pickBallMessageElement = document.createElement('div');
+    pickBallMessageElement.classList.add('confirm-message');
+    pickBallMessageElement.innerHTML = `<p>Pick a ball!</p>`;
+  
+    gameRoot.appendChild(pickBallMessageElement);
+  }
 
 function getRandomShells() {
   const indexes = [0, 1, 2];
@@ -178,7 +191,7 @@ function updateBallIndex(shell1, shell2) {
   } else if (shell2.contains(document.querySelector('.ball'))) {
     ballIndex = parseInt(shell2.dataset.index, 10);
   }
-  console.log('Current position of the ball is under shell index:', ballIndex);
+
 }
 
 function showConfirmMessage(isWin) {

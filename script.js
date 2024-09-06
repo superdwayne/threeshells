@@ -22,7 +22,34 @@ let backgroundAnimationStarted = false;
 // Audio variables
 let backgroundMusic;
 let isMuted = false;
-const musicSpeedFactor = 1.2; // Speed-up factor for the music
+
+function onMouseClick(event) {
+  if (!canClickShells || gameOver) return; // Prevent clicks when shuffling or game over
+
+  let raycaster = new THREE.Raycaster();
+  let mouse = new THREE.Vector2();
+  
+
+  // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+  // Update the raycaster with the camera and mouse positions
+  raycaster.setFromCamera(mouse, camera);
+
+  // Calculate objects intersecting the picking ray
+  const intersects = raycaster.intersectObjects(shells);
+
+  if (intersects.length > 0) {
+    const clickedShell = intersects[0].object;
+    const clickedIndex = shells.indexOf(clickedShell);
+
+    if (clickedIndex !== -1) {
+      handleShellClick(clickedIndex);
+    }
+  }
+}
+
 
 // Initialize Three.js
 function initThreeJS() {
@@ -32,16 +59,24 @@ function initThreeJS() {
   scene.fog = new THREE.Fog(fogColor, 0.1, 50);
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 5, 10);
+  camera.position.set(0, 3, 15);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
+  
+
   createGridFloor();
   addLights();
   animate();
+
+  // Add mouse click event listener for detecting clicks on cones
+  window.addEventListener('click', onMouseClick, false);
 }
+
+
 
 // Create grid floor
 function createGridFloor() {
@@ -50,7 +85,7 @@ function createGridFloor() {
   const gridColor = new THREE.Color(0xffffff);
 
   gridFloor = new THREE.GridHelper(gridSize, gridDivisions, gridColor, gridColor);
-  gridFloor.rotation.z = Math.PI / 1;
+  // gridFloor.rotation.z = Math.PI / 1;
   scene.add(gridFloor);
 }
 
@@ -67,8 +102,8 @@ function addLights() {
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
-  camera.position.x -= 0.003;
-  camera.position.z -= 0.003;
+  // camera.position.x -= 0.003;
+  // camera.position.z -= 0.003;
   camera.lookAt(new THREE.Vector3(0, 0, -10));
   renderer.render(scene, camera);
 }
@@ -98,13 +133,6 @@ function pauseMusic() {
 function resumeMusic() {
   if (backgroundMusic && backgroundMusic.paused) {
     backgroundMusic.play();
-  }
-}
-
-// Increase music speed
-function speedUpMusic() {
-  if (backgroundMusic) {
-    backgroundMusic.playbackRate *= musicSpeedFactor; // Increase playback rate
   }
 }
 
@@ -143,94 +171,184 @@ function initializeGame() {
   ballIndex = Math.floor(Math.random() * 3);
   gameOver = false;
   isShuffling = false;
-  canClickShells = false;
+  canClickShells = false; // Initially, clicking is not allowed
 
-  gameRoot.innerHTML = '';
-  createShells();
-  createBall();
+  // Clear previous shells and ball if any
+  shells.forEach((shell) => scene.remove(shell));
+  if (ball) scene.remove(ball);
 
-  setTimeout(() => {
-    hideBall();
-    shuffleShells();
-  }, 1000);
+  gameRoot.innerHTML = ''; // Clear the game root for new elements
+  
+  createShells(); // Create the shells first
+  createBall(); // Then create the ball underneath one of them
+
+  // The drop animation and shuffle will handle themselves after initialization
 }
 
-// Create shells and add event listeners
+
+
+
+
 function createShells() {
+  const coneGeometry = new THREE.ConeGeometry(1, 3, 32); // Parameters: radius, height, segments
+  const coneMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+  const spacing = 4; // Increase spacing between cones
+  
   for (let i = 0; i < 3; i++) {
-    const shell = document.createElement('div');
-    shell.classList.add('shell');
-    shell.dataset.index = i;
-    shell.addEventListener('click', () => handleShellClick(i));
-    gameRoot.appendChild(shell);
-    shells.push(shell);
+    const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+    cone.position.set(i * spacing - spacing, 5, 0); // Start cones higher up (y = 5)
+    cone.rotation.x =  6; // Ensure cones are standing up
+
+    scene.add(cone);
+    shells.push(cone); // Store references to the shells
   }
+
+  // Animate the cones dropping down to cover the ball
+  dropDownCones();
 }
+
+// Function to animate the cones dropping down
+function dropDownCones() {
+  shells.forEach((shell, index) => {
+    const targetY = 1.5; // Target Y position for the shells to drop down to
+    const duration = 1000; // Duration in milliseconds
+
+    // Create a function to handle the animation
+    const dropAnimation = () => {
+      const startTime = Date.now();
+
+      function animateDrop() {
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / duration, 1); // Progress from 0 to 1
+        shell.position.y = 5 - (progress * (5 - targetY)); // Animate y position from 5 to 1.5
+
+        if (progress < 1) {
+          requestAnimationFrame(animateDrop);
+        } else {
+          // Animation complete for this shell
+          if (index === shells.length - 1) {
+            // Ensure shuffling starts only after the last shell has dropped
+            hideBall(); // Optionally hide the ball to reset its position
+            setTimeout(() => {
+              shuffleShells(); // Call shuffle function here to ensure shuffling after drop
+              canClickShells = true; // Enable clicking after shuffling
+            }, 500); // Delay to ensure visual separation
+          }
+        }
+      }
+
+      animateDrop();
+    };
+
+    dropAnimation();
+  });
+}
+
+
+
+
+
 
 // Create and place the ball under a shell
+let ball; // Define the ball variable
+
 function createBall() {
-  const ball = document.createElement('div');
-  ball.classList.add('ball');
-  shells[ballIndex].appendChild(ball);
+  const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32); // Sphere with radius 0.5
+  const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true }); // Yellow color for the ball with transparency enabled
+  ball = new THREE.Mesh(ballGeometry, ballMaterial);
+
+  // Position the ball under the initial shell
+  ball.position.copy(shells[ballIndex].position); 
+  ball.position.y = 0.5; // Adjust height to be at ground level
+
+  scene.add(ball); // Add the ball to the scene
 }
 
 // Hide the ball
 function hideBall() {
-  const ball = document.querySelector('.ball');
   if (ball) {
-    ball.style.opacity = '0';
+    ball.visible = false; // Make the ball invisible by setting visibility
   }
 }
 
-// Handle shell click
+// Show the ball (if you need to show it after hiding)
+function showBall() {
+  if (ball) {
+    ball.visible = true; // Make the ball visible again
+  }
+}
+
+function clearCurrentConesAndBall() {
+  // Remove all current shells from the scene
+  shells.forEach((shell) => scene.remove(shell));
+  shells = []; // Clear the shells array
+
+  // Remove the ball from the scene
+  if (ball) {
+    scene.remove(ball);
+    ball = null; // Reset the ball variable
+  }
+}
+function createNewConesAndBall() {
+  clearCurrentConesAndBall(); // First, clear existing elements
+
+  createShells(); // Create new cones
+  createBall(); // Create a new ball under a random shell
+}
+
+
+
 function handleShellClick(index) {
-  if (gameOver || isShuffling || !canClickShells) return;
+  if (gameOver || isShuffling || !canClickShells) return; // Prevent clicks when not allowed
+
   const correctGuess = index === ballIndex;
 
   if (correctGuess) {
-    points += 10;
-    consecutiveWins++;
-    if (consecutiveWins > 2) {
-      shuffleInterval = Math.max(shuffleInterval - 200, 500);
-    }
-    if (consecutiveWins > 3) {
-      speedUpMusic(); // Speed up the music after more than 3 consecutive wins
-    }
-    showConfirmMessage(true);
+      points += 10;
+      consecutiveWins++;
+      if (consecutiveWins > 2) {
+          shuffleInterval = Math.max(shuffleInterval - 200, 500);
+      }
+      if (consecutiveWins > 3) {
+          speedUpMusic(); // Speed up the music after more than 3 consecutive wins
+      }
+      showConfirmMessage(true); // Show win message and handle next round
   } else {
-    points = 0;
-    consecutiveWins = 0;
-    shuffleInterval = 1000;
-    pauseMusic();
-    showConfirmMessage(false);
+      points = 0;
+      consecutiveWins = 0;
+      shuffleInterval = 1000;
+      pauseMusic();
+      showConfirmMessage(false); // Show lose message and handle retry/quit
+
+
+      // Play game over sound
+      playGameOverSound();
   }
 
   updatePointsDisplay();
   gameOver = true;
+
+  // Show the ball again under the correct shell
+  ball.material.opacity = 1; // Make the ball visible
+  ball.position.copy(shells[ballIndex].position); // Reposition the ball under the correct shell
+  ball.position.y = 0.5; // Adjust height if necessary
+  showBall(); // Show the ball
 }
 
-// Update points display
-function updatePointsDisplay() {
-  pointsDisplay.textContent = `Points: ${points}`;
-}
 
-// Show the confirmation message with options to play again or quit
+
 function showConfirmMessage(isWin) {
   const confirmElement = document.createElement('div');
   confirmElement.classList.add('confirm-message');
   confirmElement.innerHTML = `
-    ${isWin ? `${userName}, you guessed correctly!` : `Oops, try again ${userName}`}
+    ${isWin ? `${userName}, you guessed correctly!` : `GAME OVER ${userName}`}
     <br><br>
     ${isWin ? '' : `
       <button class="pushable" id="play-again">
         <span class="shadow"></span>
         <span class="edge"></span>
-        <span class="front">Try again</span>
-      </button>
-      <button class="pushable" id="quit">
-        <span class="shadow"></span>
-        <span class="edge"></span>
-        <span class="front">Quit</span>
+        <span class="front">Play again</span>
       </button>
     `}
   `;
@@ -239,9 +357,102 @@ function showConfirmMessage(isWin) {
   if (isWin) {
     setTimeout(() => {
       confirmElement.remove();
+      canClickShells = false; // Disable clicking until reshuffling is done
+
+      // Animate shells up
+      shells.forEach((shell) => {
+        gsap.to(shell.position, { y: 2, duration: 0.5 });
+      });
+
+      // After the shells are up, reshuffle and then drop them
+      setTimeout(() => {
+        ballIndex = Math.floor(Math.random() * 3);
+        ball.position.copy(shells[ballIndex].position);
+        ball.position.y = 0.5; // Ensure ball is at ground level
+
+        shuffleShells(); // Shuffle the shells
+
+        // Animate shells down after shuffling
+        setTimeout(() => {
+          shells.forEach((shell) => {
+            gsap.to(shell.position, { y: 0, duration: 0.5 });
+          });
+
+          setTimeout(() => {
+            canClickShells = true; // Re-enable clicking after the animation
+          }, 500); // Wait for the shells to drop before re-enabling clicks
+        }, 500); // Allow time for the shuffle before dropping shells
+      }, 500); // Allow time for shells to rise before shuffling
+    }, 2000); // Time delay before reshuffling after correct guess
+  } else {
+    document.getElementById('play-again').addEventListener('click', () => {
+      confirmElement.remove();
       initializeGame();
       canClickShells = true;
       resumeMusic();
+    });
+  }
+}
+
+
+
+
+
+function playGameOverSound() {
+    const gameOverSound = new Audio('sounds/gameover.mp3');
+    gameOverSound.play();
+}
+
+
+// Initialize game elements and state
+function initializeGame() {
+  shells = [];
+  ballIndex = Math.floor(Math.random() * 3);
+  gameOver = false;
+  isShuffling = false;
+  canClickShells = false; // Initially, clicking is not allowed
+
+  // Clear previous shells and ball if any
+  clearCurrentConesAndBall();
+  
+  createShells(); // Create the shells first
+  createBall(); // Then create the ball underneath one of them
+
+  // The drop animation and shuffle will handle themselves after initialization
+}
+
+
+// Show the confirmation message with options to play again or quit
+function showConfirmMessage(isWin) {
+  const confirmElement = document.createElement('div');
+  confirmElement.classList.add('confirm-message');
+  confirmElement.innerHTML = `
+    ${isWin ? `${userName}, you guessed correctly!` : `GAME OVER ${userName}`}
+    <br><br>
+    ${isWin ? '' : `
+      <button class="pushable" id="play-again">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">Play again</span>
+      </button>
+
+    `}
+  `;
+  gameRoot.appendChild(confirmElement);
+
+  if (isWin) {
+    setTimeout(() => {
+      confirmElement.remove();
+      createNewConesAndBall(); // Create new cones and ball instead of reinitializing the game
+      canClickShells = false; // Disable clicking until cones are dropped and shuffled
+      dropDownCones(); // Drop new cones and start shuffle after dropping
+      resumeMusic();
+
+      // Shuffle shells after they drop down to start new round
+      setTimeout(() => {
+        shuffleShells(); // Shuffle after dropping down
+        canClickShells = true; // Enable clicking after shuffling
+      }, 2000); // Adjust timing as necessary to fit the animation duration
     }, 2000);
   } else {
     document.getElementById('play-again').addEventListener('click', () => {
@@ -251,14 +462,21 @@ function showConfirmMessage(isWin) {
       resumeMusic();
     });
 
-    document.getElementById('quit').addEventListener('click', () => {
-      if (confirm('Are you sure you want to quit? All progress will be lost.')) {
-        confirmElement.remove();
-        resetGameToSplashScreen();
-      }
-    });
+  ;
   }
 }
+
+
+
+
+
+// Update points display
+function updatePointsDisplay() {
+  pointsDisplay.textContent = `Points: ${points}`;
+}
+
+
+
 
 // Reset the game to the splash screen and clear all details
 function resetGameToSplashScreen() {
@@ -277,28 +495,68 @@ function resetGameToSplashScreen() {
   pauseMusic();
 }
 
+function dropDownCones() {
+  shells.forEach((shell, index) => {
+    const targetY = 1.5; // Target Y position for the shells to drop down to
+    const duration = 1000; // Duration in milliseconds
+
+    // Create a function to handle the animation
+    const dropAnimation = () => {
+      const startTime = Date.now();
+
+      function animateDrop() {
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / duration, 1); // Progress from 0 to 1
+        shell.position.y = 5 - (progress * (5 - targetY)); // Animate y position from 5 to 1.5
+
+        if (progress < 1) {
+          requestAnimationFrame(animateDrop);
+        } else {
+          // Animation complete for this shell
+          if (index === shells.length - 1) {
+            // Ensure shuffling starts only after the last shell has dropped
+            hideBall(); // Optionally hide the ball to reset its position
+            setTimeout(() => {
+              shuffleShells(); // Call shuffle function here to ensure shuffling after drop
+              canClickShells = true; // Enable clicking after shuffling
+            }, 500); // Delay to ensure visual separation
+          }
+        }
+      }
+
+      animateDrop();
+    };
+
+    dropAnimation();
+  });
+}
+
+
 // Shuffle shells with animation
 function shuffleShells() {
-  if (gameOver) return;
+  if (gameOver) return; // Prevent shuffling if the game is over
 
   isShuffling = true;
-  canClickShells = false;
-  const shuffleSteps = 5;
+  canClickShells = false; // Disable clicking during shuffling
+  const shuffleSteps = 5; // Number of shuffle moves
   let currentStep = 0;
 
   const interval = setInterval(() => {
-    const [shell1, shell2] = getRandomShells();
-    swapShellsAndAnimate(shell1, shell2);
+    const [shell1, shell2] = getRandomShells(); // Get two random shells to swap
+    swapShellsAndAnimate(shell1, shell2); // Perform the swap animation
 
     currentStep++;
     if (currentStep >= shuffleSteps) {
-      clearInterval(interval);
+      clearInterval(interval); // Stop shuffling after defined steps
       isShuffling = false;
-      canClickShells = true;
+      canClickShells = true; // Enable clicking after shuffling
       console.log('Final position of the ball is under shell index:', ballIndex);
     }
   }, shuffleInterval);
 }
+
+
+
 
 // Get two random shells to swap
 function getRandomShells() {
@@ -310,39 +568,47 @@ function getRandomShells() {
 
 // Swap the positions of two shells with animation
 function swapShellsAndAnimate(shell1, shell2) {
-  const rect1 = shell1.getBoundingClientRect();
-  const rect2 = shell2.getBoundingClientRect();
+  const shell1StartPosition = shell1.position.clone();
+  const shell2StartPosition = shell2.position.clone();
+  
+  const duration = 500; // Duration in milliseconds
+  const startTime = Date.now();
 
-  const dx = rect2.left - rect1.left;
-  const dy = rect2.top - rect1.top;
+  function animateSwap() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1); // Ensure progress doesn't exceed 1
 
-  shell1.style.transition = 'transform 0.5s ease';
-  shell2.style.transition = 'transform 0.5s ease';
+    // Linear interpolation between the starting and target positions
+    shell1.position.lerpVectors(shell1StartPosition, shell2StartPosition, progress);
+    shell2.position.lerpVectors(shell2StartPosition, shell1StartPosition, progress);
 
-  shell1.style.transform = `translate(${dx}px, ${dy}px)`;
-  shell2.style.transform = `translate(${-dx}px, ${-dy}px)`;
+    if (progress < 1) {
+      requestAnimationFrame(animateSwap); // Continue the animation
+    } else {
+      // Swap completed, update shell positions directly
+      shell1.position.copy(shell2StartPosition);
+      shell2.position.copy(shell1StartPosition);
 
-  setTimeout(() => {
-    const temp = document.createElement('div');
-    shell1.parentNode.insertBefore(temp, shell1);
-    shell2.parentNode.insertBefore(shell1, shell2);
-    shell2.parentNode.insertBefore(shell2, temp);
-    temp.remove();
-
-    shell1.style.transform = '';
-    shell2.style.transform = '';
-    shell1.style.transition = '';
-    shell2.style.transition = '';
-
-    if (shell1.contains(document.querySelector('.ball'))) {
-      ballIndex = parseInt(shell1.dataset.index, 10);
-    } else if (shell2.contains(document.querySelector('.ball'))) {
-      ballIndex = parseInt(shell2.dataset.index, 10);
+      // Ensure shells' data is updated for next shuffle
+      const tempIndex = shell1.userData.index;
+      shell1.userData.index = shell2.userData.index;
+      shell2.userData.index = tempIndex;
     }
+  }
 
-    console.log('Current position of the ball is under shell index:', ballIndex);
-  }, 500);
+  if (shell1.userData.index === ballIndex) {
+    ball.position.copy(shell1.position);
+    ball.position.y = 0.5; // Adjust height to be at ground level
+  } else if (shell2.userData.index === ballIndex) {
+    ball.position.copy(shell2.position);
+    ball.position.y = 0.5; // Adjust height to be at ground level
+  }
+  
+
+  animateSwap(); // Start the animation
 }
+
+
 
 // Initialize Three.js and Music when the window loads
 window.onload = () => {

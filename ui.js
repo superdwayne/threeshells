@@ -1,5 +1,4 @@
 // UI Variables
-
 let isMuted = false;
 const musicSpeedFactor = 1.2; // Speed-up factor for the music
 let backgroundMusic;

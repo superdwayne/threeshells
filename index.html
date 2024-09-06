@@ -1,20 +1,26 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game of Shells</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game of Shells</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+<section class="container">
+  
     <div id="splash-screen">
-        <h1>Welcome to the Game of Shells!</h1>
+      
         <input type="text" id="username" placeholder="Enter your name" />
 
+        <div id="game-container" style="display: none;"></div>
         <button class="pushable"  id="start-button">
             <span class="shadow"></span>
             <span class="edge"></span>
@@ -22,21 +28,43 @@
             Start Game
             </span>
         </button>
-        <button id="mute-button" class="pushable">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">Mute</span>
-        </button>
+       
+        <a href="#" id="how-to-play-link">How to Play</a>
     </div>
-    
+
     <div id="game-root" style="display: none;">
         <!-- Shells and ball will be dynamically inserted here -->
     </div>
+ <section class="ui">
     <div id="points-display">Points: 0</div>
-    
-    <script src="gameLogic.js"></script>
-    <script src="ui.js"></script>
-    <script src="threeSetup.js"></script>
-    <script src="audio.js"></script>
-    </body>
-    </html>
+    <div class="leaderboard">
+        <a href="#" class="leaderboard">Leaderboard</a>
+        <div class="leaderboard-scores"></div>
+    </div>
+</section>
+
+<!-- Modal Overlay for How to Play Instructions -->
+<div id="how-to-play-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close">&times;</span>
+        <h2>How to Play</h2>
+        <p>Welcome to the Game of Shells!</p>
+        <ul>
+          <li>There are 3 shells and a hidden ball.</li>
+          <li>Watch carefully as the shells shuffle.</li>
+          <li>Click on the shell where you think the ball is hidden.</li>
+          <li>If you guess right, you earn points!</li>
+          <li>The game gets faster with consecutive wins. Try to score as much as you can!</li>
+        </ul>
+    </div>
+</div>
+
+</section>
+  <!-- <script src="script.js"></script> -->
+  <script src="supabase.js" ></script>
+  <script src="gameLogic.js" ></script>
+
+  <script src="threeSetup.js"></script>
+  <script src="audio.js"></script>
+</body>
+</html>

@@ -312,3 +312,12 @@ h1 {
 #how-to-play-link:hover {
   color: #f0f0f0;
 }
+
+ul {
+  list-style-type: none;
+  text-align: left;
+}
+
+li {
+  padding-bottom: 5px;
+}

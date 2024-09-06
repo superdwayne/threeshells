@@ -8,6 +8,7 @@ let consecutiveWins = 0;
 let shuffleInterval = 1000;
 let isShuffling = false;
 let canClickShells = false;
+let followBallMessageElement = null; 
 
 // DOM Elements
 const gameRoot = document.getElementById('game-root');
@@ -35,13 +36,14 @@ function startGame() {
 }
 
 function initializeGame() {
-  resetGameState();
-  createGameElements();
-  setTimeout(() => {
-    hideBall();
-    shuffleShells();
-  }, 1000);
-}
+    resetGameState();
+    createGameElements();
+    showFollowBallMessage(); // Show the "Follow the ball" message
+    setTimeout(() => {
+      hideBall();
+      shuffleShells(); // Start shuffling after the message is displayed
+    }, 1000);
+  }
 
 function resetGameState() {
   shells = [];
@@ -51,6 +53,14 @@ function resetGameState() {
   canClickShells = false;
   gameRoot.innerHTML = '';
 }
+
+function showFollowBallMessage() {
+    followBallMessageElement = document.createElement('div');
+    followBallMessageElement.classList.add('confirm-message');
+    followBallMessageElement.innerHTML = `<p>Follow the ball!</p>`;
+  
+    gameRoot.appendChild(followBallMessageElement);
+  }
 
 function createGameElements() {
   createShells();
@@ -118,26 +128,31 @@ function updatePointsDisplay() {
 }
 
 function shuffleShells() {
-  if (gameOver) return;
-
-  isShuffling = true;
-  canClickShells = false;
-  const shuffleSteps = 5;
-  let currentStep = 0;
-
-  const interval = setInterval(() => {
-    const [shell1, shell2] = getRandomShells();
-    swapShellsAndAnimate(shell1, shell2);
-
-    currentStep++;
-    if (currentStep >= shuffleSteps) {
-      clearInterval(interval);
-      isShuffling = false;
-      canClickShells = true;
-      showPickBallMessage(); // Show the message to pick a ball
+    if (gameOver) return;
+  
+    isShuffling = true;
+    canClickShells = false;
+    const shuffleSteps = 5;
+    let currentStep = 0;
+  
+    if (followBallMessageElement) {
+      followBallMessageElement.remove(); // Remove the "Follow the ball" message
+      followBallMessageElement = null; // Clear the reference
     }
-  }, shuffleInterval);
-}
+  
+    const interval = setInterval(() => {
+      const [shell1, shell2] = getRandomShells();
+      swapShellsAndAnimate(shell1, shell2);
+  
+      currentStep++;
+      if (currentStep >= shuffleSteps) {
+        clearInterval(interval);
+        isShuffling = false;
+        canClickShells = true;
+        showPickBallMessage(); // Show the message to pick a ball
+      }
+    }, shuffleInterval);
+  }
 
 function showPickBallMessage() {
     pickBallMessageElement = document.createElement('div');
